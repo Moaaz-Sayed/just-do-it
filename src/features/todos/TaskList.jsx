@@ -94,7 +94,7 @@ const CheckIcon = styled(HiCheck).attrs((props) => ({}))`
 function TaskList() {
   const { todos, isLoading, toggleComplete, deleteTask } = useAuth();
 
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [todoToDelete, setTodoToDelete] = useState(null);
   const [editTodo, setEditTodo] = useState(null);
 
   return (
@@ -123,15 +123,15 @@ function TaskList() {
 
               <HiPencil onClick={() => setEditTodo(todo)} />
               <HiTrash
-                onClick={() => setShowDeleteModal(true)}
+                onClick={() => setTodoToDelete(todo)}
                 title="Delete task"
               />
-              {showDeleteModal && (
+              {todoToDelete?.id === todo.id && (
                 <Modal
-                  onCancel={() => setShowDeleteModal(false)}
+                  onCancel={() => setTodoToDelete(null)}
                   onConfirm={() => {
-                    deleteTask(todo.id);
-                    setShowDeleteModal(false);
+                    deleteTask(todoToDelete.id);
+                    setTodoToDelete(null);
                   }}
                   message="Are you sure you want to delete this task?"
                 />
@@ -142,7 +142,7 @@ function TaskList() {
                 todo={editTodo}
                 onCancel={() => setEditTodo(null)}
               />
-            )}{" "}
+            )}
           </TaskItem>
         ))}
       </List>
