@@ -3,6 +3,7 @@ import Input from "../../ui/Input";
 import Button from "../../ui/Button";
 import { useAuth } from "../../context/AuthContext";
 import SpinnerMini from "../../ui/SpinnerMini";
+import { useTodos } from "../../context/TodosContext";
 
 const StyledForm = styled.form`
   display: flex;
@@ -19,7 +20,8 @@ const StyledForm = styled.form`
 `;
 
 function TodoForm() {
-  const { user, addTask, formData, updateField, isAdding } = useAuth();
+  const { addTask, formData, updateField, isAdding } = useTodos();
+  const { user } = useAuth();
   const username = user.user_metadata.username;
 
   function handleAddTask(e) {

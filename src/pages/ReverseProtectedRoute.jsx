@@ -1,11 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import Spinner from "../ui/Spinner";
 
 function ReverseProtectedRoute({ children }) {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) return <Spinner />;
+  const { user } = useAuth();
 
   if (user) return <Navigate to="/todos" replace />;
 

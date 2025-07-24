@@ -14,13 +14,15 @@ const StyledInput = styled.input`
   }
 `;
 
-function Input({ placeholder, type, value, onChange }) {
+function Input({ placeholder, type, value, onChange, onBlur }) {
   return (
     <StyledInput
       type={type}
       placeholder={placeholder}
       value={value}
       onChange={onChange}
+      onBlur={onBlur}
+      autoFocus
     />
   );
 }

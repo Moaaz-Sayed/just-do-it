@@ -6,6 +6,8 @@ import { HiOutlineLogout } from "react-icons/hi";
 import { useAuth } from "../context/AuthContext";
 import Modal from "../ui/Modal";
 import { useState } from "react";
+import { useTodos } from "../context/TodosContext";
+import Spinner from "../ui/Spinner";
 
 const Wrapper = styled.main`
   min-height: 100vh;
@@ -33,7 +35,8 @@ const LogoutButton = styled.button`
 `;
 
 function Todos() {
-  const { logout, todos } = useAuth();
+  const { logout } = useAuth();
+  const { todos, isLoading } = useTodos();
 
   const [showModal, setShowModal] = useState();
 
@@ -59,7 +62,10 @@ function Todos() {
       {todos.length > 0 ? (
         <TaskList />
       ) : (
-        <h2 style={{ marginTop: "100px" }}>Add Some Tasks😀</h2>
+        <>
+          {isLoading && <Spinner />}
+          <h2 style={{ marginTop: "100px" }}>Add Some Tasks😀</h2>
+        </>
       )}
     </Wrapper>
   );

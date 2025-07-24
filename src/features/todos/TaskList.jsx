@@ -1,11 +1,10 @@
-import styled from "styled-components";
-import { HiPencil, HiCheck, HiTrash } from "react-icons/hi2";
-import { useAuth } from "../../context/AuthContext";
-import Spinner from "../../ui/Spinner";
-import { formatDistanceFromNow } from "../../utils/helpers";
-import Modal from "../../ui/Modal";
 import { useState } from "react";
-import ModalEditTask from "../../ui/ModalEditTask ";
+import { HiTrash } from "react-icons/hi2";
+import styled from "styled-components";
+import { useTodos } from "../../context/TodosContext";
+import Input from "../../ui/Input";
+import Modal from "../../ui/Modal";
+import { formatDistanceFromNow } from "../../utils/helpers";
 
 const List = styled.ul`
   margin-top: 2.4rem;
@@ -36,11 +35,43 @@ const TaskItem = styled.li`
   }
 `;
 
+const TaskContent = styled.div`
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+`;
+
 const Text = styled.span`
-  font-size: 1.6rem;
+  font-size: 1.9rem;
+  display: inline-block;
+  transition: color 0.3s ease, text-decoration 0.3s ease;
+
+  /* @media (max-width: 500px) {
+    font-size: 1.4rem;
+  } */
+`;
+
+const Checkbox = styled.input.attrs({ type: "checkbox" })`
+  width: 1.6rem;
+  height: 1.6rem;
+  accent-color: var(--color-brand-500);
+  margin-right: 1rem;
+  transform: scale(1);
+  transition: transform 0.2s ease;
+
+  &:checked {
+    transform: scale(1.2);
+  }
 
   @media (max-width: 500px) {
-    font-size: 1.4rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    margin-right: 0.6rem;
+    margin-bottom: 0.6rem;
+
+    &:checked {
+      transform: scale(1.1);
+    }
   }
 `;
 
@@ -75,53 +106,77 @@ const DateText = styled.span`
   }
 `;
 
-const CheckIcon = styled(HiCheck).attrs((props) => ({}))`
-  cursor: pointer;
-  font-size: 1.8rem;
-  color: ${(props) => (props.$completed ? "#0f0" : "#f00")};
-  transition: color 0.3s;
-
-  &:hover {
-    color: ${(props) => (props.$completed ? "#326e38" : "#a24848")};
-  }
-  @media (max-width: 500px) {
-    &:hover {
-      color: initial;
-    }
-  }
-`;
-
 function TaskList() {
-  const { todos, isLoading, toggleComplete, deleteTask } = useAuth();
+  const {
+    todos,
+    toggleComplete,
+    deleteTask,
+    formData,
+    updateField,
+    startEditing,
+    editTask,
+  } = useTodos();
 
   const [todoToDelete, setTodoToDelete] = useState(null);
-  const [editTodo, setEditTodo] = useState(null);
+  const [currentlyEditingId, setCurrentlyEditingId] = useState(null);
+
+  function handleEdit(todo) {
+    if (todo.title === formData.editTodo) return setCurrentlyEditingId(null);
+    editTask();
+    setCurrentlyEditingId(null);
+  }
 
   return (
     <>
-      {isLoading && <Spinner />}
       <List>
         {todos.map((todo) => (
           <TaskItem key={todo.id}>
             <div>
-              <Text
-                style={{
-                  textDecoration: todo.completed ? "line-through" : "none",
-                }}
-              >
-                {todo.title}
-              </Text>
-              <br />
+              <TaskContent>
+                <Checkbox
+                  checked={todo.completed}
+                  onChange={() => toggleComplete(todo.id, todo.completed)}
+                />
+                {currentlyEditingId === todo.id ? (
+                  <Input
+                    autoFocus
+                    type="text"
+                    value={formData.editTodo}
+                    onChange={(e) => updateField("editTodo", e.target.value)}
+                    onBlur={() => {
+                      handleEdit(todo);
+                    }}
+                  />
+                ) : (
+                  <Text
+                    onClick={() => {
+                      startEditing(todo);
+                      setCurrentlyEditingId(todo.id);
+                    }}
+                    style={{
+                      textDecoration: todo.completed ? "line-through" : "none",
+                      cursor: "pointer",
+                    }}
+                    title="Click to edit"
+                  >
+                    {todo.title}
+                  </Text>
+                )}
+              </TaskContent>
+              • Added{" "}
               <DateText>{formatDistanceFromNow(todo.created_at)}</DateText>
+              {todo.updated_at &&
+                new Date(todo.updated_at).getTime() !==
+                  new Date(todo.created_at).getTime() && (
+                  <>
+                    • Edited{" "}
+                    <DateText>
+                      {formatDistanceFromNow(todo.updated_at)}
+                    </DateText>
+                  </>
+                )}
             </div>
             <Icons>
-              <CheckIcon
-                title="Mark as complete"
-                onClick={() => toggleComplete(todo.id, todo.completed)}
-                $completed={todo.completed}
-              />
-
-              <HiPencil onClick={() => setEditTodo(todo)} />
               <HiTrash
                 onClick={() => setTodoToDelete(todo)}
                 title="Delete task"
@@ -137,12 +192,6 @@ function TaskList() {
                 />
               )}
             </Icons>
-            {editTodo?.id === todo.id && (
-              <ModalEditTask
-                todo={editTodo}
-                onCancel={() => setEditTodo(null)}
-              />
-            )}
           </TaskItem>
         ))}
       </List>
