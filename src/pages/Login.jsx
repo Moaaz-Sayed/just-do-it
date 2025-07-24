@@ -38,6 +38,7 @@ function Login() {
           placeholder="Email"
           value={formData.email}
           onChange={(e) => updateField("email", e.target.value)}
+          autoFocus
         />
         <Input
           type="password"

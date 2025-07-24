@@ -14,17 +14,36 @@ const StyledInput = styled.input`
   }
 `;
 
-function Input({ placeholder, type, value, onChange, onBlur }) {
+function Input({ placeholder, type, value, ...props }) {
   return (
     <StyledInput
       type={type}
       placeholder={placeholder}
       value={value}
-      onChange={onChange}
-      onBlur={onBlur}
-      autoFocus
+      {...props}
     />
   );
 }
+// function Input({
+//   placeholder,
+//   type,
+//   value,
+//   onChange,
+//   onBlur,
+//   autoFocus,
+//   onKeyDown,
+// }) {
+//   return (
+//     <StyledInput
+//       type={type}
+//       placeholder={placeholder}
+//       value={value}
+//       onChange={onChange}
+//       onBlur={onBlur}
+//       autoFocus={autoFocus}
+//       onKeyDown={onKeyDown}
+//     />
+//   );
+// }
 
 export default Input;

@@ -119,10 +119,13 @@ function TaskList() {
 
   const [todoToDelete, setTodoToDelete] = useState(null);
   const [currentlyEditingId, setCurrentlyEditingId] = useState(null);
+  const [saving, setSaving] = useState(false);
 
-  function handleEdit(todo) {
+  async function handleEdit(todo) {
     if (todo.title === formData.editTodo) return setCurrentlyEditingId(null);
-    editTask();
+    setSaving(true);
+    await editTask();
+    setSaving(false);
     setCurrentlyEditingId(null);
   }
 
@@ -136,17 +139,28 @@ function TaskList() {
                 <Checkbox
                   checked={todo.completed}
                   onChange={() => toggleComplete(todo.id, todo.completed)}
+                  title="Click to make it as complete"
                 />
                 {currentlyEditingId === todo.id ? (
-                  <Input
-                    autoFocus
-                    type="text"
-                    value={formData.editTodo}
-                    onChange={(e) => updateField("editTodo", e.target.value)}
-                    onBlur={() => {
-                      handleEdit(todo);
-                    }}
-                  />
+                  saving ? (
+                    <Text style={{ color: "#3b82f6", fontStyle: "italic" }}>
+                      Saving...
+                    </Text>
+                  ) : (
+                    <Input
+                      autoFocus
+                      type="text"
+                      value={formData.editTodo}
+                      onChange={(e) => updateField("editTodo", e.target.value)}
+                      onBlur={() => {
+                        handleEdit(todo);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handleEdit(todo);
+                        if (e.key === "Escape") setCurrentlyEditingId(null);
+                      }}
+                    />
+                  )
                 ) : (
                   <Text
                     onClick={() => {
@@ -169,6 +183,7 @@ function TaskList() {
                 new Date(todo.updated_at).getTime() !==
                   new Date(todo.created_at).getTime() && (
                   <>
+                    {" "}
                     • Edited{" "}
                     <DateText>
                       {formatDistanceFromNow(todo.updated_at)}

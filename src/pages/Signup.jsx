@@ -39,6 +39,7 @@ function Signup() {
           placeholder="User name"
           value={formData.username}
           onChange={(e) => updateField("username", e.target.value)}
+          autoFocus
         />
         <Input
           type="email"
