@@ -13,8 +13,12 @@ const StyledButtonForm = styled.button`
   }
 `;
 
-function Button({ children, onClick }) {
-  return <StyledButtonForm onClick={onClick}>{children}</StyledButtonForm>;
+function Button({ children, onClick, autoFocus }) {
+  return (
+    <StyledButtonForm onClick={onClick} autoFocus={autoFocus}>
+      {children}
+    </StyledButtonForm>
+  );
 }
 
 export default Button;

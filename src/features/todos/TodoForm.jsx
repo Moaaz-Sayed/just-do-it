@@ -12,7 +12,10 @@ const StyledForm = styled.form`
   width: 60%;
   align-items: center;
 
-  @media (max-width: 768px) {
+  @media (max-width: 700px) {
+    width: 85%;
+  }
+  @media (max-width: 432px) {
     flex-direction: column;
     width: 90%;
     gap: 0.8rem;

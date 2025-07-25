@@ -4,16 +4,17 @@ import styled from "styled-components";
 import { useTodos } from "../../context/TodosContext";
 import Input from "../../ui/Input";
 import Modal from "../../ui/Modal";
+import Button from "../../ui/Button";
 import { formatDistanceFromNow } from "../../utils/helpers";
 
 const List = styled.ul`
-  margin-top: 2.4rem;
+  margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
   width: 60%;
 
-  @media (max-width: 500px) {
+  @media (max-width: 700px) {
     width: 90%;
   }
 `;
@@ -45,10 +46,6 @@ const Text = styled.span`
   font-size: 1.9rem;
   display: inline-block;
   transition: color 0.3s ease, text-decoration 0.3s ease;
-
-  /* @media (max-width: 500px) {
-    font-size: 1.4rem;
-  } */
 `;
 
 const Checkbox = styled.input.attrs({ type: "checkbox" })`
@@ -106,6 +103,11 @@ const DateText = styled.span`
   }
 `;
 
+const TopActions = styled.div`
+  display: flex;
+  justify-content: center;
+`;
+
 function TaskList() {
   const {
     todos,
@@ -118,8 +120,28 @@ function TaskList() {
   } = useTodos();
 
   const [todoToDelete, setTodoToDelete] = useState(null);
+  const [dontShowDeleteModal, setDontShowDeleteModal] = useState(
+    localStorage.getItem("dontShowDeleteModal") === "true"
+  );
   const [currentlyEditingId, setCurrentlyEditingId] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [showOnlyActive, setShowOnlyActive] = useState(false);
+
+  function handleDelete(todo) {
+    if (dontShowDeleteModal) {
+      deleteTask(todo.id);
+    } else {
+      setTodoToDelete(todo);
+    }
+  }
+
+  function toggleShowOnlyActive() {
+    setShowOnlyActive((prev) => !prev);
+  }
+
+  const visibleTodos = showOnlyActive
+    ? todos.filter((todo) => !todo.completed)
+    : todos;
 
   async function handleEdit(todo) {
     if (todo.title === formData.editTodo) return setCurrentlyEditingId(null);
@@ -132,7 +154,15 @@ function TaskList() {
   return (
     <>
       <List>
-        {todos.map((todo) => (
+        {todos.length > 0 && (
+          <TopActions>
+            <Button onClick={toggleShowOnlyActive}>
+              {showOnlyActive ? "Show All" : "Hide Completed"}
+            </Button>
+          </TopActions>
+        )}
+
+        {visibleTodos.map((todo) => (
           <TaskItem key={todo.id}>
             <div>
               <TaskContent>
@@ -143,7 +173,13 @@ function TaskList() {
                 />
                 {currentlyEditingId === todo.id ? (
                   saving ? (
-                    <Text style={{ color: "#3b82f6", fontStyle: "italic" }}>
+                    <Text
+                      style={{
+                        color: "#8b5cf6",
+                        fontWeight: "600",
+                        fontStyle: "italic",
+                      }}
+                    >
                       Saving...
                     </Text>
                   ) : (
@@ -192,10 +228,7 @@ function TaskList() {
                 )}
             </div>
             <Icons>
-              <HiTrash
-                onClick={() => setTodoToDelete(todo)}
-                title="Delete task"
-              />
+              <HiTrash onClick={() => handleDelete(todo)} title="Delete task" />
               {todoToDelete?.id === todo.id && (
                 <Modal
                   onCancel={() => setTodoToDelete(null)}
@@ -204,6 +237,11 @@ function TaskList() {
                     setTodoToDelete(null);
                   }}
                   message="Are you sure you want to delete this task?"
+                  showCheckbox={true}
+                  onCheckboxChange={(checked) => {
+                    setDontShowDeleteModal(checked);
+                    localStorage.setItem("dontShowDeleteModal", checked);
+                  }}
                 />
               )}
             </Icons>

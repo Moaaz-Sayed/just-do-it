@@ -1,4 +1,4 @@
-// src/ui/ConfirmLogoutModal.jsx
+import { useState } from "react";
 import styled from "styled-components";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -49,8 +49,42 @@ const Button = styled.button`
   }
 `;
 
-function Modal({ onCancel, onConfirm, message }) {
+const CheckboxWrapper = styled.div`
+  margin-top: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+
+  input {
+    width: 1.4rem;
+    height: 1.4rem;
+    cursor: pointer;
+  }
+
+  label {
+    font-size: 1.3rem;
+    cursor: pointer;
+    user-select: none;
+  }
+`;
+
+function Modal({
+  onCancel,
+  onConfirm,
+  message,
+  showCheckbox = false,
+  onCheckboxChange,
+}) {
   const ref = useOutsideClick(onCancel);
+  const [checked, setChecked] = useState(false);
+
+  function handleCheckboxChange(e) {
+    const isChecked = e.target.checked;
+    setChecked(isChecked);
+    onCheckboxChange?.(isChecked);
+  }
+
   return createPortal(
     <AnimatePresence>
       <Overlay
@@ -66,12 +100,27 @@ function Modal({ onCancel, onConfirm, message }) {
           ref={ref}
         >
           <Message>{message}</Message>
+
           <Buttons>
             <Button cancel="true" onClick={onCancel}>
               Cancel
             </Button>
-            <Button onClick={onConfirm}>Yes</Button>
+            <Button onClick={onConfirm} autoFocus>
+              Yes
+            </Button>
           </Buttons>
+
+          {showCheckbox && (
+            <CheckboxWrapper>
+              <input
+                type="checkbox"
+                id="dont-show-again"
+                checked={checked}
+                onChange={handleCheckboxChange}
+              />
+              <label htmlFor="dont-show-again">Don’t show again</label>
+            </CheckboxWrapper>
+          )}
         </Modall>
       </Overlay>
     </AnimatePresence>,
